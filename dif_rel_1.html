@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Li,Zhi" />
+
+
+<title>Differentials of moving frames</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Differential Relativity</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Differentials of moving frames</h1>
+<h4 class="author">Li,Zhi</h4>
+<h4 class="date">9/11/2022</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#transporting-vectors">Transporting Vectors</a></li>
+<li><a href="#the-tangent-basis">The tangent basis</a></li>
+<li><a href="#inside-tangent-space">Inside tangent space</a></li>
+<li><a href="#the-2-differentials">The 2 differentials</a></li>
+</ul>
+</div>
+
+<div id="transporting-vectors" class="section level2">
+<h2>Transporting Vectors</h2>
+<p>Looking at the graph.We have a black circle, it is the <span class="math inline">\(\xi&#39;\)</span> circle. Because the <span class="math inline">\(\xi=\{x,y\}\)</span> is for Cartesian coordinates, we use <span class="math inline">\(\xi&#39;=\{r,\theta\}\)</span> for polar coordinates, we add a <span class="math inline">\(&#39;\)</span> just to say polar. When we want to plot polar coordinates, we need to convert it to Cartesian coordinates by <span class="math display">\[\begin{align} x &amp;= r\,\cos\theta \\ y &amp;= r\,\sin\theta \end{align}\]</span></p>
+<pre class="r"><code>theta=seq(0,2*pi,by=.1*pi)
+r=5
+x=r*cos(theta)
+y=r*sin(theta)
+
+plot(x,y,ylim=c(-5,20),xlim=c(-5,40))
+
+points(x=3,y=4,col=&quot;red&quot;)
+points(x=4,y=5,col=&quot;red&quot;)
+
+points(x=4,y=3,col=&quot;red&quot;)
+points(x=5,y=4,col=&quot;red&quot;)
+
+r=5;theta=0.9272952# origin 3,4
+basis=matrix(c(cos(theta),-(r * sin(theta)),sin(theta),r * cos(theta)) ,nrow=2,byrow=1)
+
+ang=seq(0,2*pi,by=.1*pi)
+n=length(ang)
+data1=rbind(rep(0,n),ang)
+thetaaxis=apply(data1,2,function(x) basis%*%x)
+points(x=(thetaaxis[1,]+3),y=(thetaaxis[2,]+4),col=&quot;blue&quot;,type=&quot;p&quot;,pch=3)
+
+ang=rep(0,n)
+data2=rbind((1:n-1),ang)
+raxis=apply(data2,2,function(x) basis%*%x)
+points(x=(raxis[1,]+3),y=(raxis[2,]+4),col=&quot;blue&quot;,type=&quot;p&quot;,pch=4)
+
+r=5;theta=0.6435011# origin 4,3
+basis=matrix(c(cos(theta),-(r * sin(theta)),sin(theta),r * cos(theta)) ,nrow=2,byrow=1)
+
+ang=seq(0,2*pi,by=.1*pi)
+n=length(ang)
+data3=rbind(rep(0,n),ang)
+thetaaxis=apply(data3,2,function(x) basis%*%x)
+points(x=(thetaaxis[1,]+3),y=(thetaaxis[2,]+4),col=&quot;blue&quot;,type=&quot;p&quot;,pch=3)
+
+ang=rep(0,n)
+data4=rbind((1:n-1),ang)
+raxis=apply(data4,2,function(x) basis%*%x)
+points(x=(raxis[1,]+4),y=(raxis[2,]+3),col=&quot;blue&quot;,type=&quot;p&quot;,pch=4)</code></pre>
+<p><img src="dif_rel_1_files/figure-html/code1-1.png" width="672" /></p>
+<p>There is a vector <span class="math inline">\(V=\{x=1,y=1\}\)</span> in red at starting point <span class="math inline">\(\{3,4\}\)</span> is transported to a new starting point <span class="math inline">\(\{4,3\}\)</span>. The transportation does not make changes on vector <span class="math inline">\(V=\{1,1\}\)</span>, it just places <span class="math inline">\(V\)</span> onto a new starting point.</p>
+</div>
+<div id="the-tangent-basis" class="section level2">
+<h2>The tangent basis</h2>
+<p>The tangent basis are in blue. From our differential geometry we knew tangent basis are partial derivatives go like this <span class="math display">\[\begin{align} x &amp;= r\,\cos\theta \\ y &amp;= r\,\sin\theta \end{align}\]</span></p>
+<p><span class="math display">\[\hat e_i=\left[\begin{matrix} \frac{\partial x}{\partial r}&amp; \frac{\partial x}{\partial \theta}\\ \frac{\partial y}{\partial r}&amp; \frac{\partial y}{\partial \theta} \end{matrix}\right]=\left[\begin{matrix} \cos(\theta) &amp; -r\sin(\theta)\\\sin(\theta)  &amp;r\cos(\theta)  \end{matrix}\right]\]</span></p>
+<pre class="r"><code>require(Deriv)</code></pre>
+<pre><code>## Loading required package: Deriv</code></pre>
+<pre><code>## Warning: package &#39;Deriv&#39; was built under R version 4.0.5</code></pre>
+<pre class="r"><code>xi=c(&quot;r*cos(theta)&quot;,&quot;r*sin(theta)&quot;)
+#partial derivative basis vectors
+basis1=sapply(xi,function(m) Deriv(m,&quot;r&quot;))
+basis2=sapply(xi,function(m) Deriv(m,&quot;theta&quot;))
+cbind(basis1,basis2) #contravariant matrix</code></pre>
+<pre><code>##              basis1       basis2             
+## r*cos(theta) &quot;cos(theta)&quot; &quot;-(r * sin(theta))&quot;
+## r*sin(theta) &quot;sin(theta)&quot; &quot;r * cos(theta)&quot;</code></pre>
+<p>Say we have a point <span class="math inline">\(\{V^r,V^{\theta}\}\)</span> in the tangent space. We want to plot it onto the graph by Cartesian coordinates <span class="math inline">\(\{V^x,V^y\}\)</span>. We can use the tangent basis transformation <span class="math display">\[\left[\begin{matrix}V^x\\V^{y}\end{matrix}\right]=\left[\begin{matrix} \frac{\partial x}{\partial r}&amp; \frac{\partial x}{\partial \theta}\\ \frac{\partial y}{\partial r}&amp; \frac{\partial y}{\partial \theta} \end{matrix}\right](\xi&#39;)\left[\begin{matrix}V^r\\V^{\theta}\end{matrix}\right]=\left[\begin{matrix} \cos(\theta) &amp; -r\sin(\theta)\\\sin(\theta)  &amp;r\cos(\theta)  \end{matrix}\right](\xi&#39;)\left[\begin{matrix}V^r\\V^{\theta}\end{matrix}\right]\]</span>The <span class="math inline">\((\xi&#39;)\)</span> notation means we do have to specify the tangent basis’s origin in term of <span class="math inline">\(r,\theta\)</span>, most of the texts would drop the <span class="math inline">\((\xi&#39;)\)</span> notation to show matrix transformation.</p>
+</div>
+<div id="inside-tangent-space" class="section level2">
+<h2>Inside tangent space</h2>
+<p>Say we want to transform the vector <span class="math inline">\(\{1,1\}\)</span> into the tangent space, again we do have to specify the origin of tangent basis in term of <span class="math inline">\(x,y\)</span>. We convert Cartesian coordinates into polar coordinates <span class="math display">\[r=\sqrt{x^2+y^2}\\\theta=\tan^{-1}(\frac{y}{x})\]</span> <span class="math display">\[\left[\begin{matrix}V^r\\V^{\theta}\end{matrix}\right]=\left[\begin{matrix} \frac{\partial r}{\partial x}&amp; \frac{\partial r}{\partial y}\\ \frac{\partial \theta}{\partial x}&amp; \frac{\partial\theta}{\partial y} \end{matrix}\right](\xi)\left[\begin{matrix}V^x\\V^{y}\end{matrix}\right]\]</span></p>
+<pre class="r"><code>x=3
+y=4
+sqrt(x^2+y^2)</code></pre>
+<pre><code>## [1] 5</code></pre>
+<pre class="r"><code>atan(y/x)</code></pre>
+<pre><code>## [1] 0.9272952</code></pre>
+<pre class="r"><code>x=4
+y=3
+sqrt(x^2+y^2)</code></pre>
+<pre><code>## [1] 5</code></pre>
+<pre class="r"><code>atan(y/x)</code></pre>
+<pre><code>## [1] 0.6435011</code></pre>
+<pre class="r"><code>xi.=c(&quot;sqrt(x^2+y^2)&quot;,&quot;atan(y/x)&quot;)
+V=c(1,1)
+
+#partial derivative basis vectors
+sapply(xi.,function(m) Deriv(m,&quot;x&quot;))</code></pre>
+<pre><code>##                sqrt(x^2+y^2)                    atan(y/x) 
+##          &quot;x/sqrt(x^2 + y^2)&quot; &quot;-(y/(x^2 * ((y/x)^2 + 1)))&quot;</code></pre>
+<pre class="r"><code>sapply(xi.,function(m) Deriv(m,&quot;y&quot;))</code></pre>
+<pre><code>##           sqrt(x^2+y^2)               atan(y/x) 
+##     &quot;y/sqrt(x^2 + y^2)&quot; &quot;1/(x * ((y/x)^2 + 1))&quot;</code></pre>
+<pre class="r"><code>x=3;y=4
+basis1=c(x/sqrt(x^2 + y^2),-(y/(x^2 * ((y/x)^2 + 1))))#copy pasted results
+basis2=c(y/sqrt(x^2 + y^2),1/(x * ((y/x)^2 + 1)))
+cbind(basis1,basis2)%*%V</code></pre>
+<pre><code>##       [,1]
+## [1,]  1.40
+## [2,] -0.04</code></pre>
+<pre class="r"><code>x=4;y=3
+basis1=c(x/sqrt(x^2 + y^2),-(y/(x^2 * ((y/x)^2 + 1))))
+basis2=c(y/sqrt(x^2 + y^2),1/(x * ((y/x)^2 + 1)))
+cbind(basis1,basis2)%*%V</code></pre>
+<pre><code>##      [,1]
+## [1,] 1.40
+## [2,] 0.04</code></pre>
+<p>We see inside the 2 tangent spaces we have built, the vector <span class="math inline">\(\{1,1\}\)</span> has values <span class="math inline">\(\{1.4,-0.04\}\)</span> and <span class="math inline">\(\{1.4,0.04\}\)</span>, which matches our results have showed in the graph above.</p>
+</div>
+<div id="the-2-differentials" class="section level2">
+<h2>The 2 differentials</h2>
+<p>Here I only state some results without proof, the proofs are not hard only tedious. The tangent basis are moving, so they are called the moving frames. The vector <span class="math inline">\(V\)</span> in red is also moving. The 2 differentials are <span class="math display">\[d\hat e_i=\omega^i{}_{j} \hat e_i \]</span> <span class="math display">\[dV&#39;^i=\Gamma&#39;^i{}_{jk}d\xi&#39;^jV&#39;^k\]</span></p>
+<p>Some important facts<span class="math display">\[\begin{equation} \omega_{ij} = g_{ik} \,\omega^k{}_j \end{equation}\]</span> <span class="math display">\[\displaystyle{ \Gamma_{kij}
+  = {\Gamma^m}_{ij}g_{mk}
+  = \frac{\partial \mathbf{e}_{i}}{\partial x^j} \cdot \mathbf{e}^{m} g_{mk}
+  = \frac{\partial \mathbf{e}_{i}}{\partial x^j} \cdot \mathbf{e}_{k}
+ }\]</span> <span class="math display">\[\begin{equation} \omega_{ij}  = \Gamma_{ijk}\,\sigma^k   \end{equation}\]</span></p>
+<p>We can have <span class="math display">\[\omega_{ij} = g_{ik} \,\omega^k{}_j =\Gamma_{kij}\sigma^k
+  = {\Gamma^m}_{ij}g_{mk}\sigma^k\]</span> Cancel <span class="math inline">\(g_{ij}\)</span> we have <span class="math display">\[\omega^i{}_{j}=\Gamma^i{}_{jk}\sigma^k\]</span> I got <span class="math inline">\(\sigma^k\)</span> notation from another book, it is equivalent to <span class="math inline">\(d\xi&#39;\)</span>. We see the other book also drops the <span class="math inline">\(&#39;\)</span>. We say <span class="math inline">\(\omega^i{}_j\)</span> and <span class="math inline">\(\omega_{ij}\)</span> are the connections.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
