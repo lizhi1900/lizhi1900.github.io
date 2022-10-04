@@ -1,0 +1,119 @@
+---
+title: "Lie derivative and Killing vector"
+author: "Li,Zhi"
+date: "9/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Symmetry
+
+For polar coordinate metric we need to consider $r$ that is a radius from the origin. For Schwarzschild metric we do not need to consider $t$, which means we do not consider how much time has passed from the origin. Because Schwarzschild metric has a translation symmetry along the time direction.   
+
+Let's have polar coordinate metric at a point $\xi=\{r,\theta\}$ $$ds^2(\xi)=dr^2+r^2d\theta^2$$ We move to a new point $\xi'=\{r'=r+\epsilon^r,\theta' =\theta+\epsilon^{\theta}\}$, at $(\xi')$ $$ds^2(\xi')=(dr')^2+(r')^2(d\theta')^2$$ because $dr'=dr$, $d\theta'=d\theta$ we have a new metric $$ds^2(\xi')=dr^2+(r+\epsilon^r)^2d\theta^2$$ We see $\epsilon^{\theta}$ has no effect on $ds^2(\xi')$, we say polar coordinate metric has a rotational symmetry. I do not know if it makes sense to have metrics that are antisymmetric along the time direction, which sounds like an expanding universe by time, would be another nice story.
+
+
+## Lie Derivative
+
+Vector field is a partial operator. Let $X^i$ be a real valued vector field, and $\xi^i$ be a vector of parameters, we have $$X=X^i\frac{\partial}{\partial \xi^i}$$ The real valued vector field is to assign a vector to each point, $X$ is to assign an operator to each point, so $X$ is a vector field.
+
+For example, scalar function $f=x^2-\sin(y)$, vector field $X=\sin(x)\partial_y-y^2\partial_x$ $$Lie_Xf=(\sin(x)\partial_y-y^2\partial_x)(x^2-\sin(y))\\=\sin(x)\partial_y(x^2-\sin(y))-y^2\partial_x(x^2-\sin(y))\\=-\sin(x)\cos(y)-2xy^2=X^i\partial_{\xi^i} f$$ Here I plotted $f=9.756802$ and $f=5$ in black. The point $\{3,4\}$ is in red, and gradient direction is also in red. The weight vector $X^i$ is in blue. So we want dot product of the red and blue vectors, which is the Lie derivative shifts $f$ in $X^i$ direction to creates a difference.
+```{r code1}
+3^2-sin(4)
+
+y=seq(2,6,by=.01)
+x=sqrt(9.756802+sin(y))
+plot(x,y,ylim=c(0,15),xlim=c(-20,20),type="l")
+x=sqrt(5+sin(y))
+points(x,y,type="l")
+
+
+x=3
+y=4
+
+X=c(-y^2,sin(x))
+points(3,4,col="red")
+points(X[1]+3,X[2]+4,col="blue")
+points(2*x+3,-cos(y)+4,col="red")
+f="x^2-sin(y)"
+
+require(Deriv)
+Deriv(f,"x")
+Deriv(f,"y")
+f_x=2*x
+f_y=-cos(y)
+
+Deriv("x^2-sin(y)","x")
+Deriv("x^2-sin(y)","y")
+-sin(x)*cos(y)-2*x*y^2
+c(2*x,-cos(y))%*%c(-y^2,sin(x))
+```
+
+I found this link containing proof of Lie derivative of 2 vector fields. I also see there is a term containing $\epsilon^2$ which is too small is negligible. 
+http://www.physics.usu.edu/Wheeler/GenRel2013/Notes/GRKilling.pdf
+Some commutator notations $$[X,Y]=X^m \frac{\partial Y^i}{\partial x^m}- Y^m \frac{\partial X^i}{\partial x^m}$$ $$[X,Y](f)=X(Y(f))-Y(X(f))= \left(X^m \frac{\partial Y^i}{\partial x^m}- Y^m \frac{\partial X^i}{\partial x^m}\right)\frac{\partial f}{\partial x^i}$$
+
+# Killing vector
+
+Symmetry of a metric tensor just means Lie derivative of the metric is 0. We can have Lie derivative of a metric is $$Lie_{\xi}g_{\alpha\beta}=\xi^{\mu}\partial_{\mu}g_{\alpha\beta}+g_{\mu\beta}\partial_{\alpha}\xi^{\mu}+g_{\alpha\mu}\partial_{\beta}\xi^{\mu}$$
+Set it to 0 $$\xi^{\mu}\partial_{\mu}g_{\alpha\beta}+g_{\mu\beta}\partial_{\alpha}\xi^{\mu}+g_{\alpha\mu}\partial_{\beta}\xi^{\mu}=0\\\partial_{\alpha}\xi_{\beta}-\xi_{\mu}\Gamma^{\mu}{}_{\beta\alpha}+\partial_{\beta}\xi_{\alpha}-\xi_{\mu}\Gamma^{\mu}{}_{\alpha\beta}=0\\D_{\alpha}\xi_{\beta}+D_{\beta}\xi_{\alpha}=0\\\xi_{\alpha;\beta}+\xi_{\beta;\alpha}=0$$
+This is called Killing equation, vector satisfies Killing equation is a Killing vector.
+
+## Study Minkowski spacetime
+
+Given a metric tensor, in this case the metric is Minkowski, we want to know how many Killing vectors there are and how they look like. Let $\xi$ be a vector field that is a direction in Lie derivative we can treat the metric tensor. The metric tensor has Christoffel symbol 2nd kind is 0, so in Killing equation we have partial $\xi$ plus transposed partial $\xi$ is 0 $$\xi_{\alpha,\beta}+\xi_{\beta,\alpha}=0$$ 
+
+The $\xi$ vector has 4 components, partial derivatives on $\xi$ is a 4x4 matrix, 2nd partial derivatives on $\xi$ is a 4x4x4 tensor. We want to guarantee all 2nd partial derivatives are 0 so that $\xi$ is linear. So the proof  cycles the indices twice, these are all different transposes of the 4x4x4 2nd partial derivative tensor, the result is a summation that is still a 2nd partial derivative tensor of $\xi$ and equals to 0. $$2\xi_{\beta,\alpha\mu}=0$$
+
+The $\xi$ vector has a slope intercept linear form $$\xi_{\alpha}=a_{\alpha}+b_{\alpha\beta}x^{\beta}$$ $x^{\beta}=\{t,x,y,z\}$ vector. The $a_{\alpha}$ is a vector has 4 components, $b_{\alpha\beta}$ is a 4x4 matrix. And $b_{\alpha\beta}$ matrix is antisymmetric, the diagonal is all 0, and lower and upper halves have opposite sign. So $b_{\alpha\beta}$ matrix only has 6 components. $a_{\alpha}$ vector and $b_{\alpha\beta}$ matrix only have 10 components in total.
+
+If we set a component nonzero, and other 9 components zero, we can get a Killing vector. So there are 10 Killing vectors.
+
+Cartesian coordinate axes Killing vectors, $a_{\alpha}$ nonzero, $b_{\alpha\beta}$ zero $$\{1,0,0,0\}\cdot\nabla=\frac{\partial}{\partial t} \\\{0,1,0,0\}\cdot\nabla=\frac{\partial}{\partial x} \\\{0,0,1,0\}\cdot\nabla=\frac{\partial}{\partial y} \\\{0,0,0,1\}\cdot\nabla =\frac{\partial}{\partial z}$$
+
+
+Index $\alpha=\{0,1,2,3\}$. Rotation around the z axis Killing vector, $a_{\alpha}=0$, $b_{21}=-b_{12}=1$ $$\{0,-y,x,0\}\cdot\nabla= x\frac{\partial}{\partial y}-y\frac{\partial}{\partial x}$$
+
+Rotation around the x axis Killing vector, $a_{\alpha}=0$, $b_{23}=-b_{32}=1$ $$\{0,0,-z,y\}\cdot\nabla=y\frac{\partial}{\partial z}-z\frac{\partial}{\partial y}$$
+
+Rotation around the y axis Killing vector, $a_{\alpha}=0$, $b_{31}=-b_{13}=1$ $$\{0,-z,0,x\}\cdot\nabla=x\frac{\partial}{\partial z}-z\frac{\partial}{\partial x}$$
+
+For $b_{10} = -b_{01} = 1$, we find$$\{x,t,0,0\}\cdot\nabla=x\frac{\partial}{\partial t}+t\frac{\partial}{\partial x}$$
+
+For $b_{20} = -b_{02} = 1$, we find$$\{y,0,t,0\}\cdot\nabla=y\frac{\partial}{\partial t}+t\frac{\partial}{\partial y}$$
+
+For $b_{30} = -b_{03} = 1$, we find$$\{z,0,0,t\}\cdot\nabla=z\frac{\partial}{\partial t}+t\frac{\partial}{\partial z}$$
+
+
+
+Killing vector can generate Lorentz transformation, see proof.
+
+
+
+```{r code9}
+eta=matrix(c(-1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),nrow =4)
+b=matrix(c(0,0,0,0,0,0,1,0,0,-1,0,0,0,0,0,0),nrow = 4)
+eta%*%b
+#b=matrix(c(0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0),nrow = 4)
+eta%*%b%*%c(1,2,3,4)
+
+eta=matrix(c(-1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),nrow =4)
+b=matrix(c(0,1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0),nrow = 4)
+eta%*%b
+#b=matrix(c(0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0),nrow = 4)
+eta%*%b%*%c(1,2,3,4)
+```
+
+## Static Spherically Symmetric Spacetimes
+
+The timelike Killing vector field we had from Minkowski spacetime is to choose $t=\lambda$, and $x^{\mu}=\{\lambda,x,y, z\}$ $$\xi^{\mu}=\frac{dx^{\mu}}{\lambda}=\{1,0,0,0\},$$ is a constant vector. Plug this direction into Lie derivative of metric tensor we have $$\xi^{\mu}\nabla g_{\alpha\beta}=0\\ \{1,0,0,0\}\cdot \nabla g_{\alpha\beta}=0\\ \frac{\partial}{\partial t}g_{\alpha\beta}=0$$ which is to show a result we knew. Static means direction $\{1,0,0,0\}$ as a solution for Killing equation.
+
+There are 3 rotational Killing vectors in term of x,y,z. We let $$\frac{\partial}{\partial \phi}=x\frac{\partial}{\partial y}-y\frac{\partial}{\partial x}$$ and $$x=\frac{\cos \phi}{r \sin\theta}\\y=\frac{\sin \phi}{r\sin\theta}$$ We can have 2 Killing vectors in term of $\phi,\theta$ $$\frac{\partial}{\partial \phi},\frac{\partial}{\partial \theta}$$And they are orthogonal vectors.
+
+
+
+
+
