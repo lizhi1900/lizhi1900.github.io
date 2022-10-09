@@ -1,0 +1,193 @@
+---
+title: "differential forms 2"
+author: "Li,Zhi"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Wedge product
+Cross product $a\times b$ of two length 2 vectors is an area of the parallelogram.
+```{r cross1}
+a=c(1,1)
+b=c(1,0)
+
+#a cross b
+a[1]*b[2]-a[2]*b[1]
+``` 
+
+Cross product $a\times b$ of two length 3 vectors, we get 3 pairs length 2 vectors. So the cross product is 3 areas of the 3 parallelograms.
+```{r cross2}
+a=c(1,3,-2)
+b=c(5,2,8)
+
+require(pracma)
+cross(a,b)
+```
+
+Wedge product arranges the areas of the parallelograms into upper and lower halves of a square matrix. $u$ and $v$ are column vectors
+$$u \wedge v=u\otimes v-v\otimes u$$
+
+```{r wedge1}
+wdg<-function(x,y){
+ outer(x,y)-outer(y,x)
+}
+
+wdg(a,b)
+```
+
+Wedge product outputs an anti-symmetric matrix called bivector/2-vector/$\wedge^2 V$. Let $A$ be a bivector with indexed elements $a_{ij}$ 
+$$A=\sum_{i=1}^n\sum_{j=1}^{i-1}a_{ij}e_i\wedge e_j=\frac{1}{2}\sum_{i=1}^n\sum_{j=1}^{n}a_{ij}e_i\wedge e_j$$
+```{r wedge2}
+A=wdg(a,b)
+D=dim(A)[1]
+basis=diag(1,D,D)
+
+#https://stat.ethz.ch/pipermail/r-help/2003-November/041854.html
+ij=expand.grid(1:D,1:D)
+ij=ij[ij[,1]<ij[,2],] #lower triangular matrix indices
+
+eiej=apply(ij,1,function(x) wdg(basis[x[1],],basis[x[2],]))
+aij=apply(ij,1, function(x)  A[x[1],x[2]])
+
+colSums(aij*t(eiej))
+################################################################3
+
+ij=expand.grid(1:D,1:D)
+eiej=apply(ij,1,function(x) wdg(basis[x[1],],basis[x[2],]))
+aij=as.vector(A)
+
+colSums(aij*t(eiej))/2
+
+```
+## 2-forms
+
+Wedge product of two 1-forms is a 2-form. For example, (Donu Arapura 2016)
+$$(3dx + dy) \wedge (e^xdx + 2dy)=(6 - e^x)dx \wedge dy$$
+
+Hodge star operator interchanges between 1-form and 2-form. Say we have a 2-form, we can replace $dx,dy,dz$ by $\vec i, \vec j, \vec k$ basis vectors and then take cross product to get 1-form.
+```{r crossbasis}
+i=c(1,0,0)
+j=c(0,1,0)
+k=c(0,0,1)
+
+#cross base vectors
+require(pracma)
+cross(i,j) #k
+cross(k,i) #j
+cross(j,k) #i
+```
+$$*(F_1dy \wedge dz + F_2dz \wedge dx + F_3dx \wedge dy) \\
+= F_1\vec j \times \vec k + F_2\vec k \times \vec i + F_3\vec i \times \vec j\\
+=F_1\vec i + F_2\vec j + F_3\vec k\\
+=F_1dx + F_2dy + F_3dz$$
+
+Also, we have an 1-form, its Hodge star is a 2-form
+$$*(F_1dx + F_2dy + F_3dz) = F_1dy \wedge dz + F_2dz \wedge dx + F_3dx \wedge dy$$
+
+There are some necessary rules to get 2-froms. Let $\alpha$ and $\beta$ be 1-froms, $f$ be a 0-form. 
+$$d(\alpha+ \beta) = d\alpha + d\beta\\
+d(f\alpha) = (df) \wedge \alpha + fd\alpha\\
+d(dx) = d(dy) = d(dz) = 0\\
+dx\wedge dy=-dy\wedge dx$$
+
+We can show, I also showed it, it's simple
+$$d(Fdx+Gdy+Hdz) = (G_x- F_y)dx\wedge dy+(H_y - G_z)dy \wedge dz+(F_z- H_x)dz\wedge dx$$
+
+Use curl notation to write 2-forms is even simpler, $V=\{F,G,H\}$
+$$\nabla \times V = (H_y - G_z)\vec i + (G_x - F_y)\vec k + (F_z - H_x)\vec j$$
+
+When we were in high school, we learned parabola and to use it predict trajectory of moving objects in presence of earth gravity. We also learned how Newton invented it, and how Newton used it to compute velocity and movement. Equipped with differential forms, we now can go one step forward to compute energy, and show total energy is constant in Newton's system. Please refer to section 2.3 in the text.  
+
+## 3-forms
+
+https://stemandmusic.in/maths/mvt-algebra/vectorWP.php
+
+Apparently, we do not wedge matrix to a vector. The formula to make a 3-vector/$\wedge^3V$ is
+$$\vec{A_1} \wedge \vec{A_2} \wedge \vec{A_3} = (\vec{A_1}\otimes\vec{A_2}\otimes\vec{A_3}+\vec{A_3}\otimes\vec{A_1}\otimes\vec{A_2}+\vec{A_2}\otimes\vec{A_3}\otimes\vec{A_1}) -\\ (\vec{A_2}\otimes\vec{A_1}\otimes\vec{A_3}+\vec{A_3}\otimes\vec{A_2}\otimes\vec{A_1}+\vec{A_1}\otimes\vec{A_3}\otimes\vec{A_2})$$
+```{r 3-forms}
+A1=c(2,3,7)
+A2=c(-5,1,-3)
+A3=c(4,2,3)
+
+outer(outer(A1,A2),A3)+outer(outer(A3,A1),A2)+outer(outer(A2,A3),A1)-outer(outer(A2,A1),A3)-outer(outer(A3,A2),A1)-outer(outer(A1,A3),A2)
+
+```
+The general formula to make a k-vector is
+$$\vec{A_1} \wedge \vec{A_2} \wedge \vec{A_3} \wedge \cdots \wedge \vec{A_K}=\\ \text{Sum of All Tensor Products of Even Permutations of the Vectors −}\\ \text{Sum of All Tensor Products of Odd Permutations of the Vectors}$$
+Even permutation is even number swaps produced permutation. Odd permutation is odd number swaps produced permutation. An original sequence has 0 swaps, it is an even permutation.
+
+We like to use basis vector form to do wedge. For example vectors are $\vec{A_1}=2\hat{e_1} + 3\hat{e_2} + 7\hat{e_3},\hspace{.5cm}\vec{A_2}=-5\hat{e_1} + 1\hat{e_2} - 3\hat{e_3},\hspace{.5cm}\vec{A_3}=4\hat{e_1} + 2\hat{e_2} + 3\hat{e_3}$
+
+Make a 2-vector/$\wedge^2V$
+$$\vec{A_1}\wedge\vec{A_2}=17(\hat{e_1}\wedge\hat{e_2}) + 29(\hat{e_1}\wedge\hat{e_3}) - 16(\hat{e_2}\wedge\hat{e_3})$$
+Make a 3-vector/$\wedge^3V$
+$$\vec{A_1}\wedge\vec{A_2}\wedge\vec{A_3}=-71(\hat{e_1}\wedge\hat{e_2}\wedge\hat{e_3})$$
+
+https://cran.microsoft.com/snapshot/2022-06-08/web/packages/stokes/vignettes/wedge.html
+
+```{r stokes}
+require(stokes)
+
+A1<-as.kform(rbind(1,2,3),c(2,3,7))
+A2<-as.kform(rbind(1,2,3),c(-5,1,-3))
+A3<-as.kform(rbind(1,2,3),c(4,2,3))
+
+A1%^%A2
+A1%^%A2%^%A3
+wedge(A1,A2)
+```
+
+Differential of a 2-form is a 3-form
+$$d(Fdy\wedge dz + Gdz\wedge dx + Hdx\wedge dy) = (F_x + G_y + H_z)dx\wedge dy\wedge dz$$
+This expression can be written in divergence notation
+$$\nabla \cdot V = F_x + G_y + H_z$$
+
+## Poincare's lemma for 2-forms are exact
+
+https://www.math.purdue.edu/~zhan1966/teaching/362/poincarelemma.pdf
+
+It just says from a 2-form we can find its 1-forms with conditions satisfied. But the 1-forms are not unique. Let's try a toy example from Zhang's MA362 material.
+
+Let 2-form $\omega = ydx \wedge dz + zdx \wedge dy$, find 1-form $\xi= Fdx+Gdy +Hdz$ such that $d\xi=\omega$.
+
+$$f=0,g=-y , h=z$$
+
+\begin{align}
+F &=\int_0^z g(x, y, z)dz -\int_0^y h(x, y, 0)dy=\int_0^z-ydz-\int_0^y 0dy=-yz\\
+G &=-\int_0^z f(x, y, z)dz=0 \\
+H &=0
+\end{align}
+
+```{r care3}
+require(Deriv)
+require(mosaicCalc)
+
+f="0" #dy^dz
+g="-y" #dz^dx
+h="z" #dx^dy
+
+antiD(-y~z)#int g(x,y,z)dz
+gsub("z", "0", h,fixed=TRUE)#h(x,y,0)
+antiD(0~y)#int h(x,y,0)dy
+F="-y*z"#  int g(x,y,z)dz- int h(x,y,0)dy
+
+G="0" #f="0", #-int f(x,y,z)dz
+H="0"
+###################################################
+F="-y*z" #dx
+G="0" #dy
+H="z" #dz
+
+f=Simplify(paste0(Deriv(H,"y"),"-",Deriv(G,"z"))) #dy^dz
+g=Simplify(paste0(Deriv(F,"z"),"-",Deriv(H,"x"))) #dz^dx
+h=Simplify(paste0(Deriv(G,"x"),"-",Deriv(F,"y"))) #dx^dy
+paste0("(",f,")","dy^dz+","(",g,")","dz^dx+","(",h,")","dx^dy")
+```
+Reference: Introduction to differential forms, Donu Arapura, May 6, 2016 Purdue University
+
+
+
+

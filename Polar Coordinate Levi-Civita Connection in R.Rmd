@@ -1,0 +1,207 @@
+---
+title: "Manifold and Levi-Civita Connection in R"
+author: "Li,Zhi"
+date: "8/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Total differential
+
+The $dx$ is a differential, a infinitesimal (infinitely small) quantity, and we have a formula to compute it called the total differential: $$\begin{equation} df = \frac{\partial f}{\partial p} \,dp + \frac{\partial f}{\partial q} \,dq \end{equation}$$
+
+Manifold is just a parametric surface. For example, we want to plot polar coordinates $\{r,\phi\}$ by using rectangular coordinates $\{x,y\}$, we compute  $$\begin{align} x &= r\,\cos\phi \\ y &= r\,\sin\phi \end{align}$$
+Applying the total differential formula we have $$\begin{align} dx &= dr\,\cos\phi - r\,\sin\phi\,d\phi \\ dy &= dr\,\sin\phi + r\,\cos\phi\,d\phi \end{align}$$ 
+or in matrix notation $$ \left[\begin{matrix} dx\\dy\end{matrix}\right]=\left[\begin{matrix}\cos\phi,-r\sin\phi\\\sin\phi,\,\,\,\,r\cos\phi\end{matrix}\right]\left[\begin{matrix}dr\\d\phi\end{matrix}\right]=\left[\begin{matrix}\frac{\partial x}{\partial r},\frac{\partial x}{\partial \phi}\\\frac{\partial y}{\partial r},\frac{\partial y}{\partial \phi}\end{matrix}\right]\left[\begin{matrix}dr\\d\phi\end{matrix}\right]$$
+
+The vector $d\vec r=\{dx,dy\}$ is the displacement vector between two points, the vector $\{dr, d\phi\}$ is the coordinate separation vector along the coordinate curves $r,\phi$.
+
+We can see vectors $\{\frac{\partial x}{\partial r},\frac{\partial y}{\partial r}\}$ and $\{\frac{\partial x}{\partial \phi},\frac{\partial y}{\partial \phi}\}$ are partial derivative vectors from our previous differential geometry. 
+
+Polar coordinates is an orthogonal coordinate system, which means coordinate curves $r$ and $\phi$ are perpendicular to each other, so we have ortho part for free. By making them unit length we can have orthonormal basis.   $$ \left[\begin{matrix} dx\\dy\end{matrix}\right]=\left[\begin{matrix}\cos\phi,-\sin\phi\\\sin\phi,\,\,\,\,\cos\phi\end{matrix}\right]\left[\begin{matrix}dr\\rd\phi\end{matrix}\right]=\left[\begin{matrix}\frac{\partial x}{\partial r},\frac{\partial x}{\partial \phi}/r\\\frac{\partial y}{\partial r},\frac{\partial y}{\partial \phi}/r\end{matrix}\right]\left[\begin{matrix}dr\\rd\phi\end{matrix}\right]$$
+
+```{r code0}
+require(Deriv)
+
+coord=c("r*cos(phi)","r*sin(phi)")
+
+#partial derivative vectors
+sapply(coord,function(m) Deriv(m,"r"))
+sapply(coord,function(m) Deriv(m,"phi"))
+
+#make unit length
+rhat=  c("cos(phi)", "sin(phi)")
+phihat=c("-sin(phi)","cos(phi)") 
+```
+
+
+Let $\hat r=\{\frac{\partial x}{\partial r},\frac{\partial y}{\partial r}\}=\{\cos\phi,\sin\phi\}$ and $\hat \phi=\frac{1}{r}\{\frac{\partial x}{\partial \phi},\frac{\partial y}{\partial \phi}\}=\{-\sin\phi,\cos\phi\}$ are orthonormal basis of our tangent space. $\sigma^j=\{dr,rd\phi\}$ is the orthonormal basis 1-form. 
+
+## Differential of basis vector
+
+The orthonormal basis $\hat r$ and $\hat \phi$ is local, it would vary by varying parameters. Specifically, polar coordinate, varying values of radius $r$ cannot make the basis vectors change in direction and length, varying values of angle $\phi$  will make the basis vectors change in direction and length. Let's see these by doing total differential of basis vectors. $$d\hat r=\left[\begin{align}d(\cos\phi)\\d(\sin\phi)\end{align}\right] = \left[\begin{matrix}d\phi\frac{\partial \cos\phi}{\partial \phi}\\ d\phi\frac{\partial\sin\phi}{\partial \phi}\end{matrix}\right]= \left[\begin{matrix}-d\phi\sin\phi\\ d\phi\cos\phi\end{matrix}\right]=d\phi\hat \phi\\ d\hat \phi=\left[\begin{matrix}d(-\sin\phi)\\d(\cos\phi)\end{matrix}\right] = \left[\begin{matrix}d\phi\frac{\partial -\sin\phi}{\partial \phi}\\ d\phi\frac{\partial\cos\phi}{\partial \phi}\end{matrix}\right]= \left[\begin{matrix}-d\phi\cos\phi\\ -d\phi\sin\phi\end{matrix}\right]=-d\phi\hat r$$
+```{r code3}
+#partial derivative basis vectors
+sapply(rhat,function(m) Deriv(m,"phi"))
+sapply(phihat,function(m) Deriv(m,"phi"))
+```
+We use an arrow or hat on top of a letter to denote a vector. Vector is just some real numbers put together. I put vectors horizontally according to my statistician education, each row is an observation. Mathematicians put vectors vertically. I'm really careful about these, so I keep telling people these facts.
+
+
+## Connection
+
+The usual notation for basis vectors is $\{\hat e_i\}$. So in our case, $\hat e_1=\hat r$ and $\hat e_2=\hat \phi$. Also $d\hat e_1=d\hat r$ and $d\hat e_2=d\hat \phi$. 
+```{r code4}
+rhat=  c("cos(phi)", "sin(phi)")
+phihat=c("-sin(phi)","cos(phi)") 
+
+drhat=  c("-sin(phi)*dphi","cos(phi)*dphi")
+dphihat= c("-cos(phi)*dphi", "-sin(phi)*dphi")
+
+ehat=cbind(rhat,phihat)
+dehat=cbind(drhat,dphihat)
+```
+From the basis we can get the metric $g_{ij}$, which is $$\begin{equation} g_{ij} = \hat e_i \cdot \hat e_j \end{equation}$$ The Einstein's notation or summation convention is just to use combinations of indices to retrieve elements in the matrix, and the repeated indices got summed. Subscript means covariant component, superscript means contravariant component. 
+```{r code5}
+dot_prod<-function(a,b){
+#paste0("(",c("1","2","3"),")")
+ a=paste0("(",a,")")
+ b=paste0("(",b,")")
+ res=Simplify(paste(paste(a,b,sep="*"),collapse="+") )
+ return(paste0("(",res,")"))
+}
+
+i=1:2
+j=1:2
+ij=expand.grid(i,j)
+
+apply(ij,1, function(x) dot_prod(ehat[,x[1]],ehat[,x[2]]) )#g sub ij
+gsubij=matrix(c(1,0,0,1),nrow =2,byrow = FALSE  )
+#byrow = FALSE must be FALSE, because the corresponding ij indices fill matrix by each column.
+gsubij
+```
+
+In this case, $g_{ij}$ is an identity matrix. A matrix times identity matrix is itself. So we see $\omega_{ij}=\omega^i{}_j$. $$\begin{equation} \omega_{ij} = g_{ik} \,\omega^k{}_j \end{equation}$$
+
+It is easy to compute $\omega_{ij}$ with $\{\hat e_i\}$ and $\{d\hat e_i\}$. $$\begin{equation} \omega_{ij} = \hat e_i \cdot d\hat e_j \end{equation}$$
+```{r code6}
+apply(ij,1, function(x) dot_prod(ehat[,x[1]],dehat[,x[2]]) )#omega sub ij
+omegasubij=matrix(c(0,"dphi","-dphi",0),nrow =2,byrow = FALSE)
+omegasupij=omegasubij
+```
+
+The matrix $\omega^i{}_j$ is called a connection to compute  differential of basis $$\begin{equation} d\hat e_j = \omega^i{}_j\,\hat e_i \end{equation}$$
+
+
+In this formula $\hat e_i$ looks like a vector, but $i$ is a free index has values 1 and 2, so $\hat e_i$ is a matrix. The $\omega^i{}_j$ looks like a matrix, but $j$ is a fixed index, so $\omega^i{}_j$ is a vector. I prefer do this by usual matrix multiplication.
+$$d\hat e_1=\omega^1{}_1 \hat e_1+\omega^2{}_1 \hat e_2=[\hat e_1,\hat e_2]\left[\begin{matrix}\omega^1{}_1\\\omega^2{}_1\end{matrix}\right]$$
+```{r code8}
+dot_prod(ehat[1,],omegasupij[,1])
+dot_prod(ehat[2,],omegasupij[,1])
+```
+and $$d\hat e_2=\omega^1{}_2\hat e_1+\omega^2{}_2 \hat e_2=[\hat e_1,\hat e_2]\left[\begin{matrix}\omega^1{}_2\\\omega^2{}_2\end{matrix}\right]$$
+```{r code9}
+dot_prod(ehat[1,],omegasupij[,2])
+dot_prod(ehat[2,],omegasupij[,2])
+```
+## Levi-Civita Connection
+
+The differential respects dot product formula looks like this$$\begin{equation} d(\vec v\cdot\vec w) = d\vec v\cdot\vec w + \vec v\cdot d\vec w \end{equation}$$ The arrow on top of letters v and w are matrices, especially basis matrices. So notation $\{\hat e_i\}$ is a basis matrix.
+
+We require a connection to be metric compatible is to satisfy differential of the metric elements are 0 $$\begin{equation} 0  = d(\hat e_i\cdot\hat e_j)  = d\hat e_i\cdot\hat e_j + \hat e_i\cdot d\hat e_j  = \omega_{ji} + \omega_{ij}  \end{equation}$$   
+```{r code10}
+paste0(t(omegasubij),"+",omegasubij)
+```
+
+The differentiation of vector fields formulas, when denote a vector field we need basis, so vector times basis is a vector field. 
+
+1. For basis matrices $\vec v$ and $\vec w$, where $a$ is a constant $$\begin{equation} d(a\,\vec v+\vec w) = a\,d\vec v+d\vec w \end{equation}$$2. A  p-form times basis matrix is a vector field, $\alpha$ is a p-form $$\begin{equation} d(\alpha\,\vec v) = d\alpha\,\vec v + (-1)^p \alpha\wedge d\vec v \end{equation}$$also in reversing order $$\begin{equation} d(\vec v\,\alpha) = d\vec v\wedge\alpha + \vec v\,d\alpha \end{equation}$$
+
+So we can have $\sigma^j$ is a 1-form, $\hat e_j$ is a basis matrix, and require $$\begin{equation}  d^2\vec r  = d(d\vec r)  = d\left(\sigma^j\,\hat e_j \right)  = d\sigma^j\,\hat e_j - \sigma^j\wedge d\hat e_j=0 \end{equation}$$ implies$$\begin{equation}  \hat e_k \cdot d^2\vec r  = g_{kj} \,d\sigma^j - \sigma^j\wedge\omega_{kj} =0\end{equation}$$implies$$\begin{equation} g_{ki} \,d\sigma^i + \omega_{kj}\wedge\sigma^j  = g_{ki} \left( d\sigma^i + \omega^i{}_j\wedge\sigma^j \right) =0\end{equation}$$ implies the torsion free condition$$\begin{equation}d\sigma^i + \omega^i{}_j\wedge\sigma^j =0 \end{equation}$$ 
+
+For example $\sigma^j=\{dr,rd\phi\}$, the torsion free condition can be expanded into element wised wedge terms $$\begin{align} d(dr) + \omega^r{}_r\wedge dr + \omega^r{}_\phi\wedge r\,d\phi &= 0 \\ d(r\,d\phi) + \omega^\phi{}_r\wedge dr + \omega^\phi{}_\phi\wedge r\,d\phi  &= 0 \end{align}$$
+
+And metric compatibility provides $$\begin{align} \omega^r{}_r = & 0 = \omega^\phi{}_\phi \\ \omega^\phi{}_r &= -\omega^r{}_\phi \end{align}$$
+
+We have $\omega^r{}_\phi=-d\phi$ to check the torsion free condition $$\begin{align} \omega^r{}_\phi\wedge r\,d\phi =-d\phi\wedge r\,d\phi&= 0 \\ dr\wedge d\phi - \omega^r{}_\phi\wedge dr =dr\wedge d\phi + d\phi\wedge dr &= 0 \end{align}$$
+The torsion free condition is satisfied.
+
+## Commutator
+
+Let vector field be $\vec F⃗$  and 1-form be $F$ $$\begin{equation} F = \vec F\cdot d\vec r \end{equation}$$
+
+Let's define $$\begin{equation} F(\vec v)=(\vec F\cdot d\vec r) (\vec v) = \vec F\cdot\vec v \end{equation}$$ 
+So for some function $f$ we have a 1-form $df$ then $$\begin{equation} df(\vec v)=(\vec  \nabla  f\cdot d\vec r)\cdot\vec v =\vec  \nabla  f\cdot\vec v \end{equation}$$ 
+
+For an 1-form $\alpha$ we can show the differential of $\alpha(\vec v,\vec w)$ is  $$\begin{equation} d\alpha(\vec v,\vec w)  = \vec v\bigl(\alpha(\vec w)\bigr) - \vec w\bigl(\alpha(\vec v)\bigr) - \alpha([\vec v,\vec w]) \end{equation}$$ with Lie bracket of two vector fields notation $[\vec v,\vec w]$.
+
+$$\begin{equation} d\sigma^i(\hat e_p,\hat e_q) = 0 - 0 - \sigma^i([\hat e_p,\hat e_q]) \end{equation}$$
+
+$$=\hat e_p\bigl(dr(\hat e_q)\bigr) - \hat e_q\bigl(dr(\hat e_p)\bigr) - dr([\hat e_p,\hat e_q])$$
+
+
+Lie bracket of two vector fields notation $[A,B]$, for example $$A=x\dfrac{\partial}{\partial y}-y\dfrac{\partial}{\partial x} $$ and $$B=x\dfrac{\partial}{\partial x}+y\dfrac{\partial}{\partial y} \tag{2}$$
+
+The connection 1-forms can be expressed by commutators of basis vectors.
+
+
+References: 
+
+Tevian Dray (2013). Geometry of Differential Forms, Oregon State University
+
+Abdulla Eid, Fall 2008, University of Illinois at Urbana Champign
+
+
+
+
+
+
+We call $\{dx,dy\}$, $\{dr,d\phi\}$ basis vectors. We listing an inverse result without proof $$\begin{align} r\,dr &= x\,dx + y\,dy \\ r^2\,d\phi &= x\,dy-y\,dx \end{align}$$ or in matrix notation $$\left[\begin{align}dr\\d\phi \end{align}\right]=\left[\begin{array} *{x/r} & {y/r}\\ {-y/r^2} & {x/r^2} \end{array}\right] \left[\begin{array},dx\\dy \end{array}\right]$$
+
+Let's have a point $p_1=\{r=6356000,\phi=.00000001\}$ and the given basis are $\{dr=1,d\phi=.00000001\}$, and the new point $p_{new}=\{r+dr,\phi+d\phi\}$. Plot into rectangular coordinates $p_1=\{x=635999.99999997,y=.6355999999999999\}$, $p_{new}=\{x=6356000.99999987,y=1.27120019999999\}$, so basis in x,y are $\{dx=.999999905005097,dy=.635600199999993\}$. By using total differential calculation, we can get $\{dx=.9999999,dy=.6356001\}$.  
+```{r code1}
+r=6356000
+phi=.0000001
+
+dr=1
+dphi=.0000001
+
+r_new=r+dr
+phi_new=phi+dphi
+
+x=r*cos(phi)
+y=r*sin(phi)
+
+x_new=r_new*cos(phi_new)
+y_new=r_new*sin(phi_new)
+
+dx=x_new-x
+dy=y_new-y
+
+A=matrix(c(cos(phi),-r*sin(phi),sin(phi),r*cos(phi)),nrow = 2,byrow=1)
+basis=c(dr,dphi)
+A%*%basis
+```
+Again we have numerically showed the total differential works.
+
+To get differential of infinitesimal area, we use basis wedge each other $$\begin{equation} dx\wedge dy = r\,dr\wedge d\phi \end{equation}$$ or $$\begin{equation} r^3\,dr\wedge d\phi = (x^2+y^2)\,dx\wedge dy \end{equation}$$
+The notation $dxdy$ is a double integral, not an area. The notation $dx\wedge dy$ is how we denote an area.
+
+Notation $d\vec r=\{dx,dy\}$ is to let $\hat x=\{1,0\}$, $\hat y=\{0,1\}$ and $\hat r=\{\cos\phi,\sin \phi\}$, $\hat \phi=\{-\sin\phi, \cos\phi\}$. So that $$d \vec r=dx\hat x +dy \hat y=dr\hat r+rd\phi\hat \phi$$
+Notation $d\vec r$ is the square root of $ds^2$ $$d\vec r\cdot d\vec r=ds^2$$
+
+ 
+
+From our differential geometry studies we know that radius $r$ and angle $\phi$ are perpendicular to each other. So we say polar coordinate is an orthogonal coordinate. $dr,d\phi$ are also perpendicular to each other. We can write $\{dr,rd\phi\}$ into vector forms by x,y coordinates, we see differentials $dr$ and $rd\phi$ have unit length. So $\{dr,rd\phi\}$ is an orthonormal basis.
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

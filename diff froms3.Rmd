@@ -1,0 +1,145 @@
+---
+title: "Differential Forms 3"
+author: "Li,Zhi"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Line and Surface Integral
+
+In physics, a force is a vector $\vec F=\{F,G,H\}$ into x,y,z directions. A line segment also can be decomposed in to x,y,z directions $d\vec r=\{dx,dy,dz\}$. So the differential of a line integral is$$\vec F\cdot d\vec r=Fdx+Gdy+Hdz$$
+
+Let a force density $\vec F=\{F_1,F_2,F_3\}$ be a vector into x,y,z 3 directions. Let $d\vec S=\{dy \wedge dz , dz \wedge dx , dx \wedge dy\}$ be parallelograms perpendicular x,y,z directions. The dot product is a surface integral differential$$\vec F \cdot d\vec S=F_1dy \wedge dz + F_2dz \wedge dx + F_3dx \wedge dy$$ or $$\int \int_S\vec F \cdot d\vec S=\int \int_S F_1dy \wedge dz + F_2dz \wedge dx + F_3dx \wedge dy$$
+
+The notations to get parallelogram vector $$d\vec S=\{\frac{\partial(x,y)}{\partial(u,v)},\frac{\partial(y,z)}{\partial(u,v)},\frac{\partial(z,x)}{\partial(u,v)}\}dudv=\{\vec T_u\times \vec T_v\}dudv$$
+
+Let $\vec n$ be the surface unit normal vector, $dS$ be surface area differential a scalar. A nice formula between $d\vec S$ and $dS$ for surface integral $$\int \int_S \vec F \cdot d\vec S=\int \int_S \vec F\cdot\vec n dS$$
+
+## Stokes Theorem
+
+https://www.khanacademy.org/math/multivariable-calculus/greens-theorem-and-stokes-theorem/stokes-theorem-articles/a/stokes-theorem-examples
+
+https://tutorial.math.lamar.edu/Classes/CalcIII/StokesTheorem.aspx
+
+I found this butterfly net example, it has surface integral converted to a line integral. But we have seen in Poincare lemma the solution is not unique. Let G be vector $G=\{z^3/3,x^3/3,y^3/3\}$, and vector F be $F=\{y^2,z^2,x^2\}$. Do curl we have$$\nabla\times G=F$$
+
+
+```{r stokes1}
+require(Deriv)
+F=c("y^2","z^2","x^2")
+
+G=c("z^3/3","x^3/3","y^3/3")#dx#dy#dz
+
+
+f=Simplify(paste0(Deriv(G[3],"y"),"-",Deriv(G[2],"z"))) #dy^dz
+g=Simplify(paste0(Deriv(G[1],"z"),"-",Deriv(G[3],"x"))) #dz^dx
+h=Simplify(paste0(Deriv(G[2],"x"),"-",Deriv(G[1],"y"))) #dx^dy
+paste0("(",f,")","dy^dz+","(",g,")","dz^dx+","(",h,")","dx^dy")
+```
+
+$$G_1=\int F_2 dz-\int F_3dy=\int z^2 dz-\int x^2dy=z^3/3-x^2y\\
+G_2=-\int F_1 dz=-\int y^2 dz=-y^2z\\
+G_3=0$$
+```{r stokes2}
+require(Deriv)
+F=c("y^2","z^2","x^2")
+
+G=c("z^3/3-x^2*y","-y^2*z","0")#dx#dy#dz
+
+
+f=Simplify(paste0(Deriv(G[3],"y"),"-",Deriv(G[2],"z"))) #dy^dz
+g=Simplify(paste0(Deriv(G[1],"z"),"-",Deriv(G[3],"x"))) #dz^dx
+h=Simplify(paste0(Deriv(G[2],"x"),"-",Deriv(G[1],"y"))) #dx^dy
+paste0("(",f,")","dy^dz+","(",g,")","dz^dx+","(",h,")","dx^dy")
+```
+
+## Cauchy's theorem
+
+https://www.geeksforgeeks.org/analyticity-of-common-complex-functions/
+
+https://math.stackexchange.com/questions/2113313/cauchy-riemann-equations-for-fz-overline-z
+
+https://mathworld.wolfram.com/CauchyIntegralFormula.html
+
+https://byjus.com/maths/cauchys-integral-theorem-and-formula/
+
+There are couple typos like sin(x)/sin(y), 2\pi r/2\pi i.
+
+I guess $f(0)=1$ for analytic $f(z)$.
+
+Cauchy-Riemann equations are$$\frac{\partial u}{\partial x}=\frac{\partial v}{\partial y},\frac{\partial v}{\partial x}=-\frac{\partial u}{\partial y}$$ where $x,y$ are real and imaginary parts of complex number $z$, $u,v$ are real and imaginary parts of complex number $f(z)$. And $f$ is a function maps complex number to complex number. When Cauchy-Riemann equations holds we say complex function $f(z)$ has derivative at $z$ or  complex function $f(z)$ is analytic at point $z$.  
+
+Let $f(z)=e^z=e^x\cos(y)+ie^x\sin(y)$
+```{r cauc1}
+u="e^x*cos(y)"
+v="e^x*sin(y)"
+
+Deriv(u,"x")#	ln (e)=1
+Deriv(v,"y")
+Deriv(v,"x")
+Deriv(u,"y")
+```
+Let $f(z)=\bar z=x-iy$
+```{r cauc2}
+u="x"
+v="-y"
+
+Deriv(u,"x")
+Deriv(v,"y")
+Deriv(v,"x")
+Deriv(u,"y")
+```
+
+Notation $f(z)dz$ is a complex 1-form, that is an 1-form with real and complex parts.$$f(z)dz=(u + iv)(dx + idy) = [udx - vdy] + i[vdx + udy]$$
+
+Derivative of analytic complex 1-form is a complex 2-form equals to 0. $d(f(z)dz)=0$ See proof in the text.
+
+A curve $C$ on complex plane is a collection of complex points.
+
+Cauchy's theorem, integrate analytic complex 1-form over closed curve $C$ gets 0. $$\int_C f(z)dz=0$$
+
+https://math.libretexts.org/Bookshelves/Analysis/Complex_Variables_with_Applications_(Orloff)/05:_Cauchy_Integral_Formula/5.02:_Cauchys_Integral_Formula_for_Derivatives
+
+Let $g(z)=f(z)/z$, $$\int_C g(z)dz=\int_{C_0}g(z)dz+\int_{C_r}g(z)dz=0+2\pi i$$ as $r\rightarrow 0$.
+
+Cauchy's Integral Formula $$f(0)=\frac{1}{2 \pi i}\int_{C}g(z)dz=\frac{1}{2 \pi i}\int_{C}\frac{f(z)}{z}dz=\frac{1}{2 \pi i}2\pi i=1$$
+
+Cauchy's Integral Formula II $$f(a)=\frac{1}{2 \pi i}\int_{C}\frac{f(z)}{z-a}dz$$
+
+Say we want to integrate over the real line. We can create a complex curve and connect to the real line to make a closed curve.  Then we can derive a number for the closed curve integral by Cauchy's Integral Formula. Setting integral of the complex curve part to be 0, we can get the integral over the real line. 
+
+## Gauss' theorem
+
+https://phys.libretexts.org/Bookshelves/Relativity/Book%3A_Special_Relativity_(Crowell)/09%3A_Flux/9.03%3A_Gauss%E2%80%99s_Theorem
+
+https://phys.libretexts.org/Bookshelves/Electricity_and_Magnetism/Electricity_and_Magnetism_(Tatum)/01%3A_Electric_Fields/1.09%3A_Gauss's_Theorem
+
+Gauss' theorem says a triple integral of a 3-form can be converted to a double integral of a 2-form, otherwise a double integral of a 2-form can be converted to a triple integral of a 3-form.$$\int \int \int_{V}d\omega=\int\int_S\omega$$ 
+
+Divergence theorem evaluate a vector field over a volume.$$\int\int\int_V\nabla\cdot\vec F dV=\int \int_S \vec F\cdot\vec n dS$$
+
+## Laplace's equation
+
+A Laplace's equation is only $$\Delta P=0$$ it is a differential equation to find solution for $P$.
+
+The Laplacian operator is $$\Delta f= \frac{\partial^2f}{\partial x^2}+\frac{\partial^2f}{\partial y^2}+\frac{\partial^2f}{\partial z^2}$$
+
+This section provides an example solved by 2 different formalism, solutions are identical. 
+
+Differential is at a point, move parameters a little, the little change get on function.
+
+## Beyond 3D
+
+k-manifold M in $R^n$, manifold is a parameterized surface. For example, we use parameters $u,v$ to compute coordinates $x,y,z$ for a surface in 3D. So $k=2$ and $n=3$, k is a number of parameters, and n is number of coordinates, it is 2-manifold in $R^3$.
+
+To do integration, when change variables to $u,v$, function changed to $g(u,v)du\wedge dv$ as we have seen in surface integral.
+
+## Maxwell's equations in $R^4$
+
+I do not know electromagnetism. I believe this section are facts from physics. I would look at it when needed.
+
+Reference: Introduction to differential forms, Donu Arapura, May 6, 2016 Purdue University

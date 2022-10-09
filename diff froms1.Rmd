@@ -1,0 +1,190 @@
+---
+title: "Differential Forms 1"
+author: "Li,Zhi"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## One-Forms 
+
+A 1-form is a differential expression looks like:
+$$Pdx+Qdy$$
+where $P=P(x,y)$ and $Q=Q(x,y)$ are functions of $x,y$. In the textbooks, the definition does require functions to be $C^1$ or $C^2$, $C$ means continuous with first/second derivative.
+
+From our elementary calculus we had this formula
+$$d(uv)=udv+vdu$$
+More generally, if $f(x,y)$ is $C^1$, then
+$$df=\frac{\partial f}{\partial x}dx+\frac{\partial f}{\partial y}dy$$
+This is actually called total differential or exterior derivative or the Master Formula in vector calculus. 
+
+
+Similarly with $f(x,y,z)$ we have
+$$df=\frac{\partial f}{\partial x}dx+\frac{\partial f}{\partial y}dy+\frac{\partial f}{\partial z}dz$$
+The idea is that differential of 0-form is a 1-form. 
+
+Variables such as x,y,z are 0-forms. Functions contain $dx, dy, dz$, are called 1-forms. The $dx\wedge dy, dy\wedge dz, dx\wedge dz$ are 2-forms. The $dx\wedge dy\wedge dz$ is a 3-form. 
+
+Differential of arclength is not a differential form$$ds=\sqrt{dx^2+dy^2+dz^2}$$ 
+
+Differential of arclength on a surface is not a differential form$$ds=\sqrt{Edu^2+2Fdudv+Gdv^2}$$
+Differential of surface area is not a differential form$$dS=\sqrt{EG-F^2}dudv$$
+
+The variables $x,y,z$ are coordinates, $u,v,t$ are parameters. We have not yet made any specific parameterizations. 
+
+## Exact, Closed
+
+The functions $P,Q$ is a vector field $\vec F=\{P,Q\}$. For example, $P=-\frac{y}{\sqrt{x^2+y^2}}$,  $Q=\frac{x}{\sqrt{x^2+y^2}}$. Compute closedness we can see
+$$P_y=\frac{\partial P}{\partial y}=(y^2/(x^2 + y^2) - 1)/\sqrt{(x^2 + y^2)}$$
+$$Q_x=\frac{\partial Q}{\partial x}=(1 - x^2/(x^2 + y^2))/\sqrt{(x^2 + y^2)}$$
+and
+$$P_y-Q_x=[(y^2/(x^2 + y^2) - 1)-(1 - x^2/(x^2 + y^2))]/\sqrt{(x^2 + y^2)}=-1/\sqrt{(x^2+y^2)}$$
+So that in this example $P_y \neq Q_x$, the differential form is not closed, there is no $f$ such that total differential $df=Pdx+Qdy$.
+
+```{r d1}
+require(Deriv) 
+P="-y/sqrt(x^2+y^2)"
+Q= "x/sqrt(x^2+y^2)"
+
+Deriv(P,"y") 
+Deriv(Q,"x") 
+
+x=3
+y=4
+#closedness
+eval(parse(text=Deriv(P,"y")))-eval(parse(text=Deriv(Q,"x")))
+```
+Here we just saying an arbitrary $\vec F=\{P,Q\}$ differential form may not be exact, there may not be an $f$ to make $df=Pdx+Qdy$ holds.
+
+**THEOREM 1.4.1** (Donu Arapura 2016) If $F(x, y)dx+G(x, y)dy$ is a closed form on all of $R^2$ with $C^1$ coefficients, then it is exact.
+
+For example, $P=-\frac{y}{x^2+y^2}$,  $Q=\frac{x}{x^2+y^2}$, we just removed square root  from divisors unlike the example above. Note vector $\{x=0,y=0\}$ cannot be a point in this example. So this example cannot be on all of $R^2$, this violates **THEOREM 1.4.1**. Compute closedness we can see 0 as result, it is closed actually. 
+```{r d2}
+P="-y/(x^2+y^2)"
+Q= "x/(x^2+y^2)"
+
+x=3
+y=4
+#closedness
+eval(parse(text=Deriv(P,"y")))-eval(parse(text=Deriv(Q,"x")))
+```
+One more observation, let $\omega=-\frac{y}{x^2+y^2}dx+\frac{x}{x^2+y^2}dy$. with some reparameterization we find
+$$\omega=d\theta$$
+$\theta$ is a polar angle, it may not be unique. $d\theta$ can be $2\pi +d\theta, 4\pi+d\theta$ etc. Therefore we do not have the exactness to have $f$ to make $df=Pdx+Qdy$ holds.
+
+## Integral
+
+A differential is just an integral omitted parameter $t$. When we want to make the integration we just put the parameter $t$ back. These are from our studies of differential geometry. The $x,y$ are functions of $t$, $x=x(t),y=y(t)$ is a curve in Eucliean2.
+
+Integral of vector field $P,Q$ with differential form $Pdx+Qdy$ over the $x,y$ curve becomes a line integral, 
+
+**DEFINITION 1.4.2** (Donu Arapura 2016)
+$$\int_CPdx+Qdy=\int^b_a [P(x(t),y(t))\frac{dx}{dt}+Q(x(t),y(t))\frac{dy}{dt}]dt$$ 
+
+https://tutorial.math.lamar.edu/Classes/CalcIII/LineIntegralsPtII.aspx
+
+For example, let $P=yx^2$, $Q=\sin(\pi y)$ and curve $\vec r=\{x=t,y=2+2t\}$, evaluate $\int_C Pdx+Qdy$ along $\vec r$, with $0\le t \le 1$.
+$$\int^b_a [P(x(t),y(t))\frac{dx}{dt}+Q(x(t),y(t))\frac{dy}{dt}]dt=\\
+\int_0^1(2+2t)(t)^2\frac{dt}{dt}dt+\int_0^1\sin(\pi(2+2t))\frac{d(2+2t)}{dt}dt$$
+We have just specified the $t$. 
+
+## Green's Theorem
+
+I have worked out few examples from these pages.
+
+https://tutorial.math.lamar.edu/classes/calcIII/GreensTheorem.aspx
+
+https://math.stackexchange.com/questions/1636427/whats-the-meaning-of-c1r
+
+https://www.wolframalpha.com/input?i=double+integral+calculator
+
+Example 1. Evaluate $\oint_{C}xydx+x^2y^3dy$, over area marked by points $\{0,0\}, \{1,0\},\{1,2\}$. 
+```{r e1}
+require(Deriv)
+require(pracma)
+
+P="x*y"
+Q="x^2*y^3"
+
+cross=paste0("(",Deriv(Q,"x"),")-(",Deriv(P,"y"),")")
+cross
+fun <- function(x,y) {(2 * (x * y^3))-(x)}
+integral2(fun, 0, 1, 0, function(x) {2*x} ) #2/3
+```
+
+Example 2. Evaluate $\oint_C y^3dx−x^3dy$ where $C$ is the positively oriented circle of radius 2 centered at the origin.
+
+Let's generate points on the circle, and plot vectors on the circle. If we only plot a vector, the vector is rooted at the origin. So we need to move the vectors onto the circle by +x and +y.
+```{r e2}
+interval=10
+t=seq(0,360,by=interval)
+t=t/360*2*pi
+radius=2
+x=radius*cos(t)
+y=radius*sin(t)
+field=cbind(y^3,-x^3)
+#plot(field)
+
+plot(x,y,xlim=c(-15,15),ylim=c(-7.5,7.5))# Draw Base R plot with arrow
+
+arrows(x0 = x,
+       y0 = y,
+       x1 = (field[,1]+x ),
+       y1 = (field[,2]+y ))
+```
+
+Only use the LHS of Green's theorem,
+$$\oint_C Pdx+Qdy$$
+We generate points on the circle, and use diff() command to compute $dx$ and $dy$ differentials. As long as the pieces are small enough we can approximate the differentials. And integral, as we know, is a product sum.
+```{r e22}
+ 
+interval=.1
+t=seq(0,360,by=interval)
+t=t/360*2*pi
+radius=2
+x=radius*cos(t)
+y=radius*sin(t)
+field=cbind(y^3,-x^3)
+
+
+#diff(x)
+#diff(y)
+
+field=field[-1,]
+sum(field[,1]*diff(x)+field[,2]*diff(y))/pi #24
+
+```
+
+Example 3. Evaluate $\oint_C y^3dx−x^3dy$ where $C$ are the two circles of radius 2 and radius 1 centered at the origin with positive orientation. 
+
+We again only use the LHS of Green's theorem, $\oint_C Pdx+Qdy$, do it on curve not area. Just work out half of it, $45/2/2$, is enough.
+
+Note, the first curve is counter clock wise, the second curve is clock wise. We have examples in class that make a new set parameter and functions to make the curve going in reverse direction. But we have rev() command in R.
+```{r e3}
+interval=.1
+t1=seq(0,180,by=interval)
+t1=t1/360*2*pi
+t2=rev(t1)
+ 
+x1=2*cos(t1)
+y1=2*sin(t1)
+field1=cbind(y1^3,-x1^3)
+
+field1=field1[-1,]
+c1=sum(field1[,1]*diff(x1)+field1[,2]*diff(y1))/pi
+
+x2=1*cos(t2)
+y2=1*sin(t2)
+field2=cbind(y2^3,-x2^3)
+
+field2=field2[-1,]
+c2=sum(field2[,1]*diff(x2)+field2[,2]*diff(y2))/pi
+
+c1+c2
+45/2/2
+```
+
+Reference: Introduction to differential forms, Donu Arapura, May 6, 2016 Purdue University
